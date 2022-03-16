@@ -12,5 +12,7 @@ func main() {
 	db.Connection()
 	defer db.DB.Close()
 	http.HandleFunc("/", url.CreateEndPoint)
+	http.HandleFunc("/url/", url.ExpandEndPoint)
+
 	http.ListenAndServe(":8080", nil)
 }
