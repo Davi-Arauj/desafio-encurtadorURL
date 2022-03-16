@@ -68,3 +68,27 @@ func ExpandEndPoint(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(url)
 
 }
+func RootEndPoint(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-type", "application/json")
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).RunWith(db.DB)
+	var url MyUrl
+
+	partes := strings.Split(r.URL.Path, "/")
+
+	if len(partes) > 3 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	url.ID = partes[2]
+
+	if err := psql.Select("id,longurl,shorturl").
+		From("url").
+		Where(sq.Eq{"id": url.ID}).
+		Scan(&url.ID, &url.LongUrl, &url.ShortUrl); err != nil {
+		return
+	}
+
+	http.Redirect(w, r, url.LongUrl, http.StatusMovedPermanently)
+
+}
