@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"encurtUrl/db"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -39,7 +38,7 @@ func CreateEndPoint(w http.ResponseWriter, r *http.Request) {
 				Columns("id", "longurl", "shorturl").
 				Values(url.ID, url.LongUrl, url.ShortUrl).
 				Exec(); err != nil {
-				log.Println(err)
+				return
 			}
 		}
 	}
@@ -62,6 +61,7 @@ func ExpandEndPoint(w http.ResponseWriter, r *http.Request) {
 		From("url").
 		Where(sq.Eq{"id": url.ID}).
 		Scan(&url.ID, &url.LongUrl, &url.ShortUrl); err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -86,6 +86,7 @@ func RootEndPoint(w http.ResponseWriter, r *http.Request) {
 		From("url").
 		Where(sq.Eq{"id": url.ID}).
 		Scan(&url.ID, &url.LongUrl, &url.ShortUrl); err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
